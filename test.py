@@ -1,29 +1,17 @@
-import sys
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
+import sqlite3
 
+conn = sqlite3.connect("wishlist.db")
 
-class Window(QWidget):
-    def __init__(self, parent=None):
-        super(Window, self).__init__(parent)
+c = conn.cursor()
 
-        self.listCheckBox = ["Checkbox_1", "Checkbox_2", "Checkbox_3", "Checkbox_4", "Checkbox_5",
-                             "Checkbox_6", "Checkbox_7", "Checkbox_8", "Checkbox_9", "Checkbox_10"]
+items = [
+    (None, "Кошка", 30, "example.com"),
+    (None, "Холодильник", 30000, "holodilniki.com"),
+    (None, "Кирпич", 5, "kirpichi.com"),
+    (None, "Клавиатура", 7000, "keyboard.com"),
+]
 
-        grid = QGridLayout()
+c.executemany("INSERT INTO wishlist VALUES (?,?,?,?)", items)
 
-        for i, v in enumerate(self.listCheckBox):
-            self.listCheckBox[i] = QCheckBox(v)
-            grid.addWidget(self.listCheckBox[i], i, 0)
-
-        print(self.listCheckBox)
-        print()
-
-        self.setLayout(grid)
-
-
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    clock = Window()
-    clock.show()
-    sys.exit(app.exec_())
+for row in c.execute("SELECT * FROM wishlist"):
+    print(row)

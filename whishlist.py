@@ -5,19 +5,20 @@ import sys
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
-import json
+import sqlite3
+
 
 class DatabaseConnector:
 
     def __init__(self):
 
-        pass
+        self.conn = sqlite3.connect("wishlist.db")
+        self.c = self.conn.cursor()
 
     def get_all(self):
 
-        # sql config
-
-        return []
+        data_to_return = self.c.execute("SELECT * FROM wishlist")
+        return data_to_return
 
 class WishList(QWidget):
 
@@ -45,7 +46,7 @@ class WishList(QWidget):
         self.show()
 
     def initList(self):
-        self.listCheckBox = self.db.get_all()
+        self.listCheckBox = list(self.db.get_all())
 
         self.grid = QGridLayout()
 
@@ -76,7 +77,7 @@ class WishList(QWidget):
     @pyqtSlot()
     def new_item(self):
         all_info = {"Name": self.item_name.text(),
-                    "Price": self.item_price.text(),
+                    "Price": int(self.item_price.text()),
                     "Link": self.item_link.text()}
         for i in all_info.items():
             print(i[0], i[1])
