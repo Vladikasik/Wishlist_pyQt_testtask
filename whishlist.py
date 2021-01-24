@@ -17,8 +17,24 @@ class DatabaseConnector:
 
     def get_all(self):
 
-        data_to_return = self.c.execute("SELECT * FROM wishlist")
+        names = self.c.execute(
+            "SELECT itemname FROM wishlist ORDER BY itemname")
+        names = list(names)
+        prices = self.c.execute(
+            "SELECT itemprice FROM wishlist ORDER BY itemname")
+        prices = list(prices)
+        links = self.c.execute(
+            "SELECT itemlink FROM wishlist ORDER BY itemname")
+        links = list(links)
+        data_to_return = {
+            "names": names,
+            "prices": prices,
+            "links": links,
+        }
         return data_to_return
+
+    def add_item(self, all_info):
+        passs
 
 class WishList(QWidget):
 
@@ -46,15 +62,34 @@ class WishList(QWidget):
         self.show()
 
     def initList(self):
-        self.listCheckBox = list(self.db.get_all())
+
+        self.database_data = self.db.get_all()
+
+        print(self.database_data)
+
+        self.listNames = self.database_data["names"]
+        self.listPrices = self.database_data["prices"]
+        self.listLinks = self.database_data["links"]
+
+        self.listCheckBox = []
+        self.listLabelPrice = []
+        self.listLabelLink = []
 
         self.grid = QGridLayout()
 
-        for i, v in enumerate(self.listCheckBox):
-            self.listCheckBox[i] = QCheckBox(v)
+        for i, v in enumerate(self.listNames):
+            self.listCheckBox.append(QCheckBox(v[0]))
             self.grid.addWidget(self.listCheckBox[i], i, 0)
+            print(self.listCheckBox[i], i, 0)
 
-        print(self.listCheckBox)
+        for i, v in enumerate(self.listPrices):
+            self.listLabelPrice.append(QLabel(str(v[0])))
+            self.grid.addWidget(self.listLabelPrice[i], i, 1)
+
+        for i, v in enumerate(self.listLinks):
+            self.listLabelLink.append(QLabel(v[0]))
+            self.grid.addWidget(self.listLabelLink[i], i, 2)
+
         print()
 
     def initOthers(self):
@@ -69,18 +104,20 @@ class WishList(QWidget):
         self.item_link = QLineEdit()
 
         list_size = len(self.listCheckBox)
-        self.grid.addWidget(self.item_name, list_size + 1, 0)
-        self.grid.addWidget(self.item_price, list_size + 1, 1)
-        self.grid.addWidget(self.item_link, list_size + 2, 0, 1, 2)
-        self.grid.addWidget(self.button_add, list_size + 3, 0, 1, 2)
+        self.grid.addWidget(self.item_name, list_size + 1, 0, 1, 2)
+        self.grid.addWidget(self.item_price, list_size + 1, 2)
+        self.grid.addWidget(self.item_link, list_size + 2, 0, 1, 3)
+        self.grid.addWidget(self.button_add, list_size + 3, 0, 1, 3)
 
-    @pyqtSlot()
+    @ pyqtSlot()
     def new_item(self):
         all_info = {"Name": self.item_name.text(),
                     "Price": int(self.item_price.text()),
                     "Link": self.item_link.text()}
         for i in all_info.items():
             print(i[0], i[1])
+
+        self.db.add_item(all_info)
 
         self.initList()
 

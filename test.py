@@ -13,5 +13,4 @@ items = [
 
 c.executemany("INSERT INTO wishlist VALUES (?,?,?,?)", items)
 
-for row in c.execute("SELECT * FROM wishlist"):
-    print(row)
+conn.commit()
